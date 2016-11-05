@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 public partial class ReeGridView : System.Web.UI.UserControl
 {
-    public object Source;
+    public object DataSource;
 
     private GVTable theTable;
     public List<GVRow> Rows
@@ -19,7 +19,7 @@ public partial class ReeGridView : System.Web.UI.UserControl
     }
     public override void DataBind()
     {
-        theTable = ConvertToGVTable(Source);
+        theTable = ConvertToGVTable(DataSource);
         List<GVRow> rowList = theTable.Rows;
         Response.Write("<table class='rgvtable'>");
 
@@ -50,7 +50,7 @@ public partial class ReeGridView : System.Web.UI.UserControl
         List<string> rowData = new List<string>();
         GVTable theTable = new GVTable();
         theTable.Rows = new List<GVRow>();
-        IEnumerable enumerable = Source as IEnumerable;
+        IEnumerable enumerable = DataSource as IEnumerable;
         foreach (object item in enumerable.OfType<object>())
         {
             GVRow rowItem = new GVRow();

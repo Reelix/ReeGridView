@@ -17,7 +17,7 @@ public partial class TestPage : System.Web.UI.Page
         };
         personlist.Add(person);
         personlist.Add(personTwo);
-        rgvPeople.Source = personlist;
+        rgvPeople.DataSource = personlist;
         rgvPeople.DataBind();
     }
 
