@@ -1,48 +1,132 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Web.UI.WebControls;
 
 public partial class ReeGridView : System.Web.UI.UserControl
 {
-    public object DataSource;
 
-    private GVTable theTable;
+    private static object _dataSource;
+    public object DataSource
+    {
+        get
+        {
+            return _dataSource;
+        }
+        set { _dataSource = value; }
+    }
+
+    private GVTable gvTable;
+
+    [DefaultValue("True")]
+    public bool EnablePaging
+    {
+        get; set;
+    }
+
+    private static int _currentPage;
+    public static int CurrentPage
+    {
+        get
+        {
+            return _currentPage;
+        }
+        set { _currentPage = value; }
+    }
+
+    static Button leftButton = new Button();
+    [DefaultValue(10)]
+    public int ItemsPerPage { get; set; }
     public List<GVRow> Rows
     {
         get
         {
-            return theTable.Rows;
+            return gvTable.Rows;
         }
     }
+
+    public ReeGridView()
+    {
+        leftButton.Enabled = false;
+    }
+
     public override void DataBind()
     {
-        theTable = ConvertToGVTable(DataSource);
-        List<GVRow> rowList = theTable.Rows;
-        Response.Write("<table class='rgvtable'>");
+        // TODO: It currently databinds twice due to PageLoad - Need to fix that
+        pnlGridView.Controls.Clear();
+        gvTable = ConvertToGVTable(DataSource);
+        List<GVRow> rowList = gvTable.Rows;
+        rowList = rowList.GetRange(CurrentPage * ItemsPerPage, ItemsPerPage).ToList();
 
+        Table displayTable = new Table();
+        displayTable.CssClass = "rgvtable";
+        TableRow headerRow = new TableRow();
+        headerRow.CssClass = "rgvheader";
+        displayTable.Rows.Add(headerRow);
         // Headers
         GVRow firstRow = rowList[0];
-        Response.Write("<tr class = 'rgvheader'>");
         foreach (var item in firstRow.RowData)
         {
-            Response.Write("<td class = 'rgvheader'>" + item.Name + "</td>");
+            TableCell headerCell = new TableCell();
+            headerCell.CssClass = "rgvheader";
+            headerCell.Text = item.Name;
+            headerRow.Cells.Add(headerCell);
         }
-        Response.Write("</tr>");
-
         // Data
         foreach (GVRow row in rowList)
         {
-            Response.Write("<tr class = 'rgvdata'>");
+            TableRow dataRow = new TableRow();
+            dataRow.CssClass = "rgvdata";
+            displayTable.Rows.Add(dataRow);
             foreach (GVCell cell in row.RowData)
             {
-                Response.Write("<td class = 'rgvdata'>" + cell.Value + "</td>");
+                TableCell dataCell = new TableCell();
+                dataCell.CssClass = "rgvdata";
+                dataCell.Text = cell.Value;
+                dataRow.Cells.Add(dataCell);
             }
-            Response.Write("</tr>");
         }
-        Response.Write("</table>");
+
+        // Footer - Probably paging here
+        TableRow footerRow = new TableRow();
+        displayTable.Rows.Add(footerRow);
+        TableCell footerCell = new TableCell();
+        footerRow.Cells.Add(footerCell);
+        footerCell.ColumnSpan = rowList[0].RowData.Count;
+        footerCell.HorizontalAlign = HorizontalAlign.Center;
+        leftButton.Text = "<";
+        leftButton.ID = "btnPageLeft";
+        leftButton.Click += btnPageLeft_Click;
+        footerCell.Controls.Add(leftButton);
+        Button rightButton = new Button();
+        rightButton.Text = ">";
+        rightButton.ID = "btnPageRight";
+        rightButton.Click += btnPageRight_Click;
+        footerCell.Controls.Add(rightButton);
+        pnlGridView.Controls.Add(displayTable);
+    }
+
+    protected void btnPageLeft_Click(Object sender, EventArgs e)
+    {
+        if (CurrentPage != 0)
+        {
+            CurrentPage--;
+        }
+        if (CurrentPage == 0)
+        {
+            leftButton.Enabled = false;
+        }
+        DataBind();
+    }
+
+    protected void btnPageRight_Click(Object sender, EventArgs e)
+    {
+        CurrentPage++;
+        leftButton.Enabled = true;
+        DataBind();
     }
 
     private GVTable ConvertToGVTable(object source)

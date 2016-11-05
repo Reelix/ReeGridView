@@ -5,18 +5,15 @@ public partial class TestPage : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         List<MyPerson> personlist = new List<MyPerson>();
-        MyPerson person = new MyPerson()
+        for (int j = 1; j <= 100; j++)
         {
-            Name = "Tom",
-            Age = 13
-        };
-        MyPerson personTwo = new MyPerson()
-        {
-            Name = "Fred",
-            Age = 36
-        };
-        personlist.Add(person);
-        personlist.Add(personTwo);
+            MyPerson person = new MyPerson()
+            {
+                Name = "Person " + j,
+                Age = j
+            };
+            personlist.Add(person);
+        }
         rgvPeople.DataSource = personlist;
         rgvPeople.DataBind();
     }

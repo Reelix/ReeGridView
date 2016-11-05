@@ -33,8 +33,8 @@
     <div>
     
         Just a test page for the grid</div>
-        <Ree:GridView ID="rgvPeople" runat="server" />
-        <asp:Button ID="btnParseData" runat="server" OnClick="btnParseData_Click" Text="Parse data as custom object" />
+        <Ree:GridView ID="rgvPeople" runat="server" EnablePaging="True" EnableTheming="True" EnableViewState="True" ItemsPerPage="15" Visible="True" /><br />
+        <asp:Button ID="btnParseData" runat="server" OnClick="btnParseData_Click" Text="Parse data as custom object" CausesValidation="False" Height="26px" />
     </form>
 </body>
 </html>
